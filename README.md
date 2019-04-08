@@ -1,7 +1,7 @@
 # TypeScript Node Starter
 
 
-The main purpose of this repository is to show a good end-to-end project setup and workflow for writing Node code in TypeScript.
+The main purpose of this repository is to show a good starter template in TypeScript using ExpressJS Mongoose Bootstrap.
 I will try to keep this as up-to-date as possible, but community contributions and recommendations for improvements are encouraged and will be most welcome. 
 
 
@@ -9,12 +9,11 @@ I will try to keep this as up-to-date as possible, but community contributions a
 To build and run this app locally you will need a few things:
 - Install [Node.js](https://nodejs.org/en/)
 - Install [MongoDB](https://docs.mongodb.com/manual/installation/)
-- Install [VS Code](https://code.visualstudio.com/)
 
 # Getting started
 - Clone the repository
 ```
-git clone --depth=1 <github url> <project_name>
+git clone --depth=1 https://github.com/nisanthsojan/express-mongoose-typescript-starter.git <project_name>
 ```
 - Install dependencies
 ```
@@ -23,27 +22,21 @@ npm install
 ```
 - Configure your mongoDB server
 - Start your mongoDB server (you'll probably want another command prompt)
-```
-mongod
-```
 - Build and run the project
 ```
 npm run build
 npm start
 ```
-Or, if you're using VS Code, you can use `cmd + shift + b` to run the default build task (which is mapped to `npm run build`), and then you can use the command palette (`cmd + shift + p`) and select `Tasks: Run Task` > `npm: start` to run `npm start` for you.
 
-> **Note on editors!** - TypeScript has great support in [every editor](http://www.typescriptlang.org/index.html#download-links), but this project has been pre-configured for use with [VS Code](https://code.visualstudio.com/). 
-Throughout the README I'll try to call out specific places where VS Code really shines or where this project has been setup to take advantage of specific features.
-
-Finally, navigate to `http://localhost:3000` and you should see the template being served and rendered locally!
+Finally, navigate to `http://localhost:5001` and you should see the template being served and rendered locally!
 
 # Deploying the app
 There are many ways to deploy an Node app, and in general, nothing about the deployment process changes because you're using TypeScript.
-In this section, I'll walk you through how to deploy this app to Azure App Service using the extensions available in VS Code because I think it is the easiest and fastest way to get started, as well as the most friendly workflow from a developer's perspective.
+
+All the required front-end and server js code is compiled into the folder '/dist'. All you need to do is copy this folder to your server and run npm install. 
 
 ### Troubleshooting failed deployments
-Deployment can fail for various reasons, if you get stuck with a page that says *Service Unavailable* or some other error, [open an issue](https://github.com/Microsoft/TypeScript-Node-Starter/issues/new) and I'll try to help you resolve the problems.
+Deployment can fail for various reasons, if you get stuck with a page that says *Service Unavailable* or some other error, open an issue and I'll try to help you resolve the problems.
 
 # TypeScript + Node 
 In the next few sections I will call out everything that changes when adding TypeScript to an Express project.
@@ -56,12 +49,12 @@ npm install -D typescript
 ```
 If you're using VS Code then you're good to go!
 VS Code will detect and use the TypeScript version you have installed in your `node_modules` folder. 
-For other editors, make sure you have the corresponding [TypeScript plugin](http://www.typescriptlang.org/index.html#download-links). 
+For Editors, make sure you have the corresponding [TypeScript plugin](http://www.typescriptlang.org/index.html#download-links). 
 
 ## Project Structure
 The most obvious difference in a TypeScript + Node project is the folder structure.
 In a TypeScript project, it's best to have separate _source_  and _distributable_ files.
-TypeScript (`.ts`) files live in your `src` folder and after compilation are output as JavaScript (`.js`) in the `dist` folder.
+TypeScript (`.ts`) files live in your `src-server` and `src-public` folder and after compilation are output as JavaScript (`.js`) in the `dist` folder.
 The `test` and `views` folders remain top level as expected. 
 
 The full folder structure of this app is explained below:
@@ -195,10 +188,6 @@ In this template, all the `.d.ts` files have already been added to `devDependenc
 Once `.d.ts` files have been installed using npm, you should see them in your `node_modules/@types` folder. 
 The compiler will always look in this folder for `.d.ts` files when resolving JavaScript libraries.
 
-### What if a library isn't on DefinitelyTyped?
-If you try to install a `.d.ts` file from `@types` and it isn't found, or you check DefinitelyTyped and cannot find a specific library, you will want to create your own `.d.ts file`.
-In the `src` folder of this project, you'll find the `types` folder which holds the `.d.ts` files that aren't on DefinitelyTyped (or weren't as of the time of this writing).
-
 #### Setting up TypeScript to look for `.d.ts` files in another folder
 The compiler knows to look in `node_modules/@types` by default, but to help the compiler find our own `.d.ts` files we have to configure path mapping in our `tsconfig.json`.
 Path mapping can get pretty confusing, but the basic idea is that the TypeScript compiler will look in specific places, in a specific order when resolving modules, and we have the ability to tell the compiler exactly how to do it.
@@ -218,22 +207,6 @@ So when we write something like:
 import * as flash from "express-flash";
 ```
 First the compiler will look for a `d.ts` file in `node_modules/@types` and then when it doesn't find one look in `src/types` and find our file `express-flash.d.ts`.
-
-#### Using `dts-gen`
-Unless you are familiar with `.d.ts` files, I strongly recommend trying to use the tool [dts-gen](https://github.com/Microsoft/dts-gen) first.
-The [README](https://github.com/Microsoft/dts-gen#dts-gen-a-typescript-definition-file-generator) does a great job explaining how to use the tool, and for most cases, you'll get an excellent scaffold of a `.d.ts` file to start with.
-In this project, `bcrypt-nodejs.d.ts`, and `lusca.d.ts` were all generated using `dts-gen`. 
-
-#### Writing a `.d.ts` file
-If generating a `.d.ts` using `dts-gen` isn't working, [you should tell me about it first](https://www.surveymonkey.com/r/LN2CV82), but then you can create your own `.d.ts` file.
-
-If you just want to silence the compiler for the time being, create a file called `<some-library>.d.ts` in your `types` folder and then add this line of code:
-```ts
-declare module "<some-library>";
-```
-
-If you want to invest some time into making a great `.d.ts` file that will give you great type checking and IntelliSense, the TypeScript website has great [docs on authoring `.d.ts` files](http://www.typescriptlang.org/docs/handbook/declaration-files/introduction.html). 
-
 
 ## Debugging
 Debugging TypeScript is exactly like debugging JavaScript with one caveat, you need source maps.
@@ -326,17 +299,6 @@ Notice that TSLint is not a part of the main watch task.
 It can be annoying for TSLint to clutter the output window while in the middle of writing a function, so I elected to only run it only during the full build.
 If you are interesting in seeing TSLint feedback as soon as possible, I strongly recommend the [TSLint extension in VS Code]().
 
-### VSCode Extensions
-
-To enhance your development experience while working in VSCode we also provide you a list of the suggested extensions for working with this project:
-
-![Suggested Extensions In VSCode](https://user-images.githubusercontent.com/14539/34583539-6f290a30-f198-11e7-8804-30f40d418e20.png)
-
-- [TSLint](https://marketplace.visualstudio.com/items?itemName=eg2.tslint)
-- [Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker)
-- [Azure Cosmos DB](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-cosmosdb)
-- [Azure App Service](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azureappservice)
-
 # Dependencies
 Dependencies are managed through `package.json`.
 In that file you'll find two sections:
@@ -344,16 +306,16 @@ In that file you'll find two sections:
 
 | Package                         | Description                                                           |
 | ------------------------------- | --------------------------------------------------------------------- |
-| async                           | Utility library that provides asynchronous control flow.               |
+| async                           | Utility library that provides asynchronous control flow.              |
 | bcrypt-nodejs                   | Library for hashing and salting user passwords.                       |
 | bluebird                        | Promise library                                                       |
 | body-parser                     | Express 4 middleware.                                                 |
 | compression                     | Express 4 middleware.                                                 |
 | connect-mongo                   | MongoDB session store for Express.                                    |
-| dotenv                          | Loads environment variables from .env file.                            |
+| dotenv                          | Loads environment variables from .env file.                           |
 | errorhandler                    | Express 4 middleware.                                                 |
 | express                         | Node.js web framework.                                                |
-| express-flash                    | Provides flash messages for Express.                                   |
+| express-flash                   | Provides flash messages for Express.                                  |
 | express-session                 | Express 4 middleware.                                                 |
 | express-validator               | Easy form validation for Express.                                     |
 | lodash                          | General utility library.                                              |
@@ -363,19 +325,19 @@ In that file you'll find two sections:
 | passport                        | Simple and elegant authentication library for node.js                 |
 | passport-local                  | Sign-in with Username and Password plugin.                            |
 | pug (jade)                      | Template engine for Express.                                          |
-| request                         | Simplified HTTP request library.                                       |
-| request-promise                 | Promisified HTTP request library. Let's us use async/await             |
+| request                         | Simplified HTTP request library.                                      |
+| request-promise                 | Promisified HTTP request library. Let's us use async/await            |
 | winston                         | Logging library                                                       |
 
 ## `devDependencies`
 
 | Package                         | Description                                                           |
 | ------------------------------- | --------------------------------------------------------------------- |
-| @types                          | Dependencies in this folder are `.d.ts` files used to provide types    |
+| @types                          | Dependencies in this folder are `.d.ts` files used to provide types   |
 | chai                            | Testing utility library that makes it easier to write tests           |
 | concurrently                    | Utility that manages multiple concurrent tasks. Used with npm scripts |
 | jest                            | Testing library for JavaScript.                                       |
-| node-sass                       | Allows to compile .scss files to .css                                  |
+| node-sass                       | Allows to compile .scss files to .css                                 |
 | nodemon                         | Utility that automatically restarts node process when it crashes      |
 | supertest                       | HTTP assertion library.                                               |
 | ts-jest                         | A preprocessor with sourcemap support to help use TypeScript wit Jest.|
