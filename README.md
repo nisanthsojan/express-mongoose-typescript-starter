@@ -1,4 +1,4 @@
-# TypeScript Node Starter
+# TypeScript Node Starter ( EMBT Starter) 
 
 
 The main purpose of this repository is to show a good starter template in TypeScript using ExpressJS Mongoose Bootstrap.

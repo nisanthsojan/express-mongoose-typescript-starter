@@ -1,6 +1,6 @@
 {
-  "name": "dict-server",
-  "version": "0.1.0",
+  "name": "exmoboty_starter",
+  "version": "1.0.0",
   "description": "",
   "private": true,
   "scripts": {
@@ -25,7 +25,7 @@
   },
   "keywords": [],
   "author": "Nisanth Sojan<nisanthsojan@yahoo.com>",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "async": "^2.6.2",
     "bcrypt-nodejs": "^0.0.3",

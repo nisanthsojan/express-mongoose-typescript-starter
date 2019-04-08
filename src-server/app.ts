@@ -72,7 +72,7 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-    res.locals._app_name = "Dictionary Malayalam";
+    res.locals._app_name = "ExMoBoTy Starter";
     next();
 });
 
