@@ -1,0 +1,58 @@
+extends ../layout
+
+block content
+
+    div.card.mb-3
+        div.card-header
+            h3 Profile Information
+        div.card-body
+            form.form-horizontal(action=url('admin.account.profile', 'post'), method='POST')
+                input(type='hidden', name='_csrf', value=_csrf)
+                .form-group
+                    label.col-sm-3.control-label(for='email') Email
+                    .col-sm-7
+                        input.form-control(type='email', id='email', value=user.email, disabled='disabled')
+                .form-group
+                    label.col-sm-3.control-label(for='fullName') Name
+                    .col-sm-7
+                        input.form-control(type='text', name='fullName', id='fullName', value=user.profile.name)
+                .form-group
+                    .col-sm-offset-3.col-sm-4
+                        button.btn.btn.btn-primary(type='submit')
+                            i.fas.fa-edit.mr-2
+                            | Update Profile
+
+    div.card.mb-3
+        div.card-header
+            h3 Change Password
+        div.card-body
+            form.form-horizontal(action=url('admin.account.password', 'post'), method='POST')
+                input(type='hidden', name='_csrf', value=_csrf)
+                .form-group
+                    label.col-sm-3.control-label(for='password') New Password
+                    .col-sm-7
+                        input.form-control(type='password', name='password', id='password')
+                .form-group
+                    label.col-sm-3.control-label(for='confirmPassword') Confirm Password
+                    .col-sm-7
+                        input.form-control(type='password', name='confirmPassword', id='confirmPassword')
+                .form-group
+                    .col-sm-offset-3.col-sm-4
+                        button.btn.btn-primary(type='submit')
+                            i.fa.fa-lock.mr-2
+                            | Change Password
+
+
+    div.card.text-white.bg-danger
+        div.card-header
+            h3 Delete Account
+        div.card-body
+            form.form-horizontal(action=url('admin.account.delete', 'post'), method='POST')
+                .form-group
+                    p.col-sm-offset-3.col-sm-6 You can delete your account, but keep in mind this action is irreversible.
+                    input(type='hidden', name='_csrf', value=_csrf)
+                    .col-sm-offset-3.col-sm-4
+                        button.btn.btn-danger(type='submit')
+                            i.fa.fa-trash.mr-2
+                            | Delete my account
+

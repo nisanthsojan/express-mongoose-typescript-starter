@@ -1,0 +1,23 @@
+nav.navbar.navbar-expand-md.navbar-dark.bg-dark.fixed-top.main-navbar
+    a.navbar-brand(href=url('index'))
+        img.logo(src='/images/logo.svg', alt='Dictionary Malayalam')
+        .
+            #{_app_name}
+    button.navbar-toggler(type='button', data-toggle='collapse', data-target='#mainNavBar')
+        span.navbar-toggler-icon
+    div#mainNavBar.collapse.navbar-collapse
+        ul.navbar-nav.mr-auto
+            li.nav-item(class=(title === 'Home') ? 'active' : undefined)
+                a.nav-link(href=url('index')) Home
+            li.nav-item(class=(title === 'Contact') ? 'active' : undefined)
+                a.nav-link(href=url('contact')) Contact
+        if user
+            ul.navbar-nav
+                li.nav-item.dropdown
+                    a#userDropdownMenuLink.nav-link.dropdown-toggle.text-truncate.d-inline-block(href='#' role='button' data-toggle='dropdown', style={
+                        'max-width': '250px'
+                    } ) #{user.profile.name || user.email}
+                    div.dropdown-menu.dropdown-menu-right
+                        a.dropdown-item(href=url('admin.account')) Profile
+                        div.dropdown-divider
+                        a.dropdown-item(href=url('admin.logout')) Logout

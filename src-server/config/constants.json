@@ -1,0 +1,5 @@
+{
+  "PASSWORD_MIN_LENGTH": "4",
+  "PASSWORD_RESET_EXPIRES": "3600000",
+  "APP_EMAIL": "webmaster@testing.com"
+}
