@@ -16,7 +16,7 @@ export default function routes(app: Express) {
     router.extendExpress(app);
     router.registerAppHelpers(app);
 
-    const adminRoutePrefix = "/supervisor";
+    const adminRoutePrefix = "/admin";
 
     app.get("/", "index", homeController.index);
     app.get("/contact", "contact", contactController.getContact);
