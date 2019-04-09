@@ -2,7 +2,7 @@ import express from "express";
 import compression from "compression";  // compresses requests
 import session, { SessionOptions } from "express-session";
 import bodyParser from "body-parser";
-import logger from "./util/logger";
+import { ChildLogger } from "./util/logger";
 import helmet from "helmet";
 import dotenv from "dotenv";
 import mongo, { MongoUrlOptions } from "connect-mongo";
@@ -14,6 +14,7 @@ import bluebird from "bluebird";
 import csurf from "csurf";
 import { MONGODB_URI, SESSION_NAME, SESSION_SECRET, IS_PROD } from "./util/secrets";
 
+const logger = ChildLogger(__filename);
 const MongoStore = mongo(session);
 
 // Load environment variables from .env file, where API keys and passwords are configured

@@ -8,10 +8,10 @@ import { WriteError } from "mongodb";
 import { default as passport } from "../config/passport";
 import { check, validationResult } from "express-validator/check";
 import sanitize from "mongo-sanitize";
-import logger from "../util/logger";
+import { ChildLogger } from "../util/logger";
 import CONSTANTS from "../config/constants.json";
 
-
+const logger = ChildLogger(__filename);
 /**
  * GET /login
  * Login page.

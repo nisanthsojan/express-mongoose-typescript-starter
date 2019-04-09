@@ -1,7 +1,7 @@
 import { Express } from "express";
 import Router from "named-routes";
 
-import logger from "./util/logger";
+import { ChildLogger } from "./util/logger";
 // API keys and Passport configuration
 import * as passportConfig from "./config/passport";
 // Controllers (route handlers)
@@ -9,6 +9,7 @@ import * as userController from "./controllers/user";
 import * as homeController from "./controllers/home";
 import * as contactController from "./controllers/contact";
 
+const logger = ChildLogger(__filename);
 const router = new Router();
 
 export default function routes(app: Express) {

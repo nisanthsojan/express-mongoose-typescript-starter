@@ -1,7 +1,7 @@
 import winston from "winston";
-import { ENVIRONMENT } from "./secrets";
+import path from "path";
 
-const logger = winston.createLogger({
+export const logger = winston.createLogger({
     transports: [
         new (winston.transports.Console)({level: process.env.NODE_ENV === "production" ? "error" : "debug"}),
         new (winston.transports.File)({filename: "debug.log", level: "debug"})
@@ -11,6 +11,12 @@ const logger = winston.createLogger({
 if (process.env.NODE_ENV !== "production") {
     logger.debug("Logging initialized at debug level");
 }
+
+export function ChildLogger(filePath: string) {
+    const file = path.relative(process.cwd(), filePath);
+    return logger.child({FILE: file});
+}
+
 
 export default logger;
 
