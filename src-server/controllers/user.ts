@@ -41,7 +41,7 @@ export let postLogin = [
 
         if (!errors.isEmpty()) {
             req.flash("errors", errors.array());
-            return res.redirect(req.app.namedRoutes.build("admin.login"));
+            return res.status(400).redirect(req.app.namedRoutes.build("admin.login"));
         }
 
         passport.authenticate("local", (err: Error, user: UserModel, info: IVerifyOptions) => {
@@ -50,7 +50,7 @@ export let postLogin = [
             }
             if (!user) {
                 req.flash("errors", {msg: info.message});
-                return res.redirect(req.app.namedRoutes.build("admin.login"));
+                return res.status(422).redirect(req.app.namedRoutes.build("admin.login"));
             }
             req.logIn(user, (err) => {
                 if (err) {
@@ -104,16 +104,17 @@ export let postSignup = [
                 return true;
             }
         }),
-    check("fullName").not().isEmpty().withMessage("Full Name cannot be blank"),
+    check("fullName")
+        .not().isEmpty().withMessage("Full Name cannot be blank")
+        .trim()
+        .escape(),
     (req: Request, res: Response, next: NextFunction) => {
 
         const errors = validationResult(req);
-        logger.debug("errors", errors.array());
-        logger.debug("req.body", req.body);
 
         if (!errors.isEmpty()) {
             req.flash("errors", errors.array());
-            return res.redirect(req.app.namedRoutes.build("admin.register"));
+            return res.status(400).redirect(req.app.namedRoutes.build("admin.register"));
         }
 
         const user = new User({
@@ -130,7 +131,7 @@ export let postSignup = [
             }
             if (existingUser) {
                 req.flash("errors", {msg: "Account with that email address already exists."});
-                return res.redirect(req.app.namedRoutes.build("admin.register"));
+                return res.status(422).redirect(req.app.namedRoutes.build("admin.register"));
             }
             user.save((err) => {
                 if (err) {
@@ -175,7 +176,7 @@ export let postForgot = [
 
         if (!errors.isEmpty()) {
             req.flash("errors", errors.array());
-            return res.redirect(req.app.namedRoutes.build("admin.forgot"));
+            return res.status(400).redirect(req.app.namedRoutes.build("admin.forgot"));
         }
 
         async.waterfall([
@@ -195,7 +196,7 @@ export let postForgot = [
                     }
                     if (!user) {
                         req.flash("errors", {msg: "Account with that email address does not exist."});
-                        return res.redirect(req.app.namedRoutes.build("admin.forgot"));
+                        return res.status(422).redirect(req.app.namedRoutes.build("admin.forgot"));
                     }
                     user.passwordResetToken = token.accessToken;
                     user.passwordResetExpires = Date.now() + parseInt(CONSTANTS.PASSWORD_RESET_EXPIRES); // 1 hour
@@ -255,7 +256,7 @@ export let getReset = (req: Request, res: Response, next: NextFunction) => {
             }
             if (!user) {
                 req.flash("errors", {msg: "Password reset token is invalid or has expired."});
-                return res.redirect(req.app.namedRoutes.build("admin.forgot"));
+                return res.status(422).redirect(req.app.namedRoutes.build("admin.forgot"));
             }
             res.render("account/reset", {
                 title: "Password Reset"
@@ -283,7 +284,7 @@ export let postReset = [
 
         if (!errors.isEmpty()) {
             req.flash("errors", errors.array());
-            return res.redirect("back");
+            return res.status(400).redirect("back");
         }
 
         async.waterfall([
@@ -297,7 +298,7 @@ export let postReset = [
                         }
                         if (!user) {
                             req.flash("errors", {msg: "Password reset token is invalid or has expired."});
-                            return res.redirect("back");
+                            return res.status(422).redirect("back");
                         }
                         user.password = sanitize(req.body.password);
                         user.passwordResetToken = undefined;
@@ -356,14 +357,17 @@ export let getAccount = (req: Request, res: Response) => {
  * Update profile information.
  */
 export let postUpdateProfile = [
-    check("fullName").not().isEmpty().withMessage("Full Name cannot be blank"),
+    check("fullName")
+        .not().isEmpty().withMessage("Full Name cannot be blank")
+        .trim()
+        .escape(),
     (req: Request, res: Response, next: NextFunction) => {
 
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
             req.flash("errors", errors.array());
-            return res.redirect("back");
+            return res.status(400).redirect("back");
         }
 
         User.findById(req.user.id, (err, user: UserModel) => {
@@ -375,7 +379,7 @@ export let postUpdateProfile = [
                 if (err) {
                     logger.error(err);
                     req.flash("errors", {msg: "Database error."});
-                    return res.redirect(req.app.namedRoutes.build("admin.account"));
+                    return res.status(422).redirect(req.app.namedRoutes.build("admin.account"));
                 }
                 req.flash("success", {msg: "Profile information has been updated."});
                 res.redirect(req.app.namedRoutes.build("admin.account"));
@@ -404,7 +408,7 @@ export let postUpdatePassword = [
 
         if (!errors.isEmpty()) {
             req.flash("errors", errors.array());
-            return res.redirect("back");
+            return res.status(400).redirect("back");
         }
 
         User.findById(req.user.id, (err, user: UserModel) => {
