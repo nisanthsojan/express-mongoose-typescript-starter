@@ -1,5 +1,7 @@
-import bcrypt from "bcrypt-nodejs";
+import bcrypt from "bcrypt";
 import mongoose from "mongoose";
+
+const SALT_ROUND = 10;
 
 export interface UserModel extends mongoose.Document {
     email: string;
@@ -37,12 +39,11 @@ userSchema.pre("save", function save(next) {
     if (!user.isModified("password")) {
         return next();
     }
-    bcrypt.genSalt(10, (err, salt) => {
+    bcrypt.genSalt(SALT_ROUND, (err, salt) => {
         if (err) {
             return next(err);
         }
-        // @ts-ignore
-        bcrypt.hash(user.password, salt, undefined, (err: mongoose.Error, hash) => {
+        bcrypt.hash(user.password, salt, (err, hash) => {
             if (err) {
                 return next(err);
             }
@@ -53,7 +54,7 @@ userSchema.pre("save", function save(next) {
 });
 
 const comparePassword: comparePasswordFunction = function (candidatePassword, cb) {
-    bcrypt.compare(candidatePassword, this.password, (err: mongoose.Error, isMatch: boolean) => {
+    bcrypt.compare(candidatePassword, this.password, (err, isMatch: boolean) => {
         cb(err, isMatch);
     });
 };

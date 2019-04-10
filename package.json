@@ -28,7 +28,7 @@
   "license": "MIT",
   "dependencies": {
     "async": "^2.6.2",
-    "bcrypt-nodejs": "^0.0.3",
+    "bcrypt": "^3.0.5",
     "bluebird": "^3.5.3",
     "body-parser": "^1.18.3",
     "compression": "^1.7.4",
@@ -56,7 +56,6 @@
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.8.0",
     "@types/async": "^2.4.1",
-    "@types/bcrypt-nodejs": "^0.0.30",
     "@types/bluebird": "^3.5.26",
     "@types/body-parser": "^1.17.0",
     "@types/compression": "0.0.36",
