@@ -35,8 +35,23 @@ mongoose.connect(mongoUrl, {useNewUrlParser: false}).then(() => {
 
 // Express configuration
 app.set("port", process.env.PORT || 3000);
-app.set("views", path.join(__dirname, "../views"));
-app.set("view engine", "pug");
+/*
+* Use the compiled pug template files for production
+ */
+if (IS_PROD) {
+    app.set("views", path.join(__dirname, "views"));
+    app.set("view engine", "js");
+    const runtime = require("pug").runtime;
+    logger.debug(path.join(__dirname, "views"));
+    app.engine("js", function (filePath, options, callback) { // define the template engine
+        const data = require(filePath)(options, runtime);
+        callback(undefined, data);
+    });
+} else {
+    app.set("views", path.join(__dirname, "../views"));
+    app.set("view engine", "pug");
+}
+
 app.use(compression());
 app.use(
     express.static(path.join(__dirname, "public"), {maxAge: 31557600000})

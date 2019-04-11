@@ -1,7 +1,7 @@
 import * as shell from "shelljs";
 
 shell.cp("-f", "./package*.json", "dist/");
-shell.cp("-R", "./views", "dist/views/");
+// Images
 shell.cp("-R", "src-public/images", "dist/public/");
 // Fonts
 shell.mkdir("-p", "dist/public/fonts");
