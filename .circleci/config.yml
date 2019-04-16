@@ -27,6 +27,8 @@ jobs:
           name: "Deploy to Heroku"
           command: |
             cd ~/app/dist
+            git config user.email "deployer@circleci.com"
+            git config --global user.name "CircleCI Deployer"
             git init --quiet
             git add .
             git commit -m"Init"
