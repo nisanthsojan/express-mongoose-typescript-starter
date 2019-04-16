@@ -276,7 +276,7 @@ Note this will also generate a coverage report.
 
 ### Writing tests
 Writing tests for web apps has entire books dedicated to it and best practices are strongly influenced by personal style, so I'm deliberately avoiding discussing how or when to write tests in this guide.
-However, if prescriptive guidance on testing is something that you're interested in, [let me know](https://www.surveymonkey.com/r/LN2CV82), I'll do some homework and get back to you.
+However, if prescriptive guidance on testing is something that you're interested in, let me know, I'll do some homework and get back to you.
 
 ## TSLint
 TSLint is a code linter which mainly helps catch minor code quality and style issues.
@@ -297,7 +297,7 @@ npm run tslint  // runs only TSLint
 ```
 Notice that TSLint is not a part of the main watch task.
 It can be annoying for TSLint to clutter the output window while in the middle of writing a function, so I elected to only run it only during the full build.
-If you are interesting in seeing TSLint feedback as soon as possible, I strongly recommend the [TSLint extension in VS Code]().
+If you are interesting in seeing TSLint feedback as soon as possible, I strongly recommend the TSLint extension in VS Code.
 
 # Dependencies
 Dependencies are managed through `package.json`.

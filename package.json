@@ -4,14 +4,14 @@
   "description": "",
   "private": true,
   "scripts": {
-    "start": "npm run serve",
-    "build": "npm run build-sass && npm run build-public-ts && npm run build-server-ts && npm run tslint && npm run copy-static-assets && npm run compile-pug",
+    "start": "node server.js",
+    "build-prod": "npm run build-sass && npm run build-public-ts && npm run build-server-ts && npm run tslint && npm run copy-static-assets && npm run compile-pug",
     "serve": "node dist/server.js",
     "watch-node": "nodemon dist/server.js",
     "watch": "concurrently -k -p \"[{name}]\" -n \"Sass,TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-sass\" \"npm run watch-ts\" \"npm run watch-node\"",
     "test": "jest --forceExit --coverage --verbose",
     "watch-test": "npm run test -- --watchAll",
-    "debug": "npm run build && npm run watch-debug",
+    "debug": "npm run build-prod && npm run serve-debug",
     "serve-debug": "nodemon --inspect dist/server.js",
     "watch-debug": "npm run copy-static-assets && concurrently -k -p \"[{name}]\" -n \"Sass,TypeScript,Public,Node\" -c \"yellow.bold,cyan.bold,green.bold,magenta.bold\" \"npm:watch-sass\" \"npm:watch-server-ts\" \"npm:watch-public-ts\" \"npm:serve-debug\"",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
@@ -27,6 +27,10 @@
   "keywords": [],
   "author": "Nisanth Sojan<nisanthsojan@yahoo.com>",
   "license": "MIT",
+  "engines": {
+    "node": "11.x",
+    "npm": "6.x"
+  },
   "dependencies": {
     "async": "^2.6.2",
     "bcrypt": "^3.0.5",
