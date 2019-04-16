@@ -1,0 +1,30 @@
+version: 2.0
+jobs:
+  build:
+    working_directory: ~/app
+    docker:
+      - image: circleci/node:11.9.0-stretch
+    steps:
+      - checkout
+      - run:
+          name: "Check Node and NPM version"
+          command: |
+            node -v
+            npm -v
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: "Install npm modules"
+          command: npm install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - node_modules
+      - run:
+          name: "Build dist"
+          command: npm run build-prod
+      - run:
+          name: "Deploy to Heroku"
+          command: |
+            cd ~/app/dist
+            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP.git master

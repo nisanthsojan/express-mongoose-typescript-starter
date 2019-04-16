@@ -1,8 +1,10 @@
 # TypeScript Node Starter ( EMBT Starter) 
 
 
-The main purpose of this repository is to show a good starter template in TypeScript using ExpressJS Mongoose Bootstrap.
+The main purpose of this repository is to show a good starter template in TypeScript using ExpressJS Mongoose Bootstrap v4.
 I will try to keep this as up-to-date as possible, but community contributions and recommendations for improvements are encouraged and will be most welcome. 
+
+**Live demo:** [https://embt-starter.herokuapp.com/](https://embt-starter.herokuapp.com/)
 
 
 # Pre-reqs
@@ -24,8 +26,7 @@ npm install
 - Start your mongoDB server (you'll probably want another command prompt)
 - Build and run the project
 ```
-npm run build
-npm start
+npm run debug
 ```
 
 Finally, navigate to `http://localhost:5001` and you should see the template being served and rendered locally!
@@ -34,6 +35,8 @@ Finally, navigate to `http://localhost:5001` and you should see the template bei
 There are many ways to deploy an Node app, and in general, nothing about the deployment process changes because you're using TypeScript.
 
 All the required front-end and server js code is compiled into the folder '/dist'. All you need to do is copy this folder to your server and run npm install. 
+The repo contains the configuration files for deploying the app to [Heroku](https://www.heroku.com/). It is using the [CircleCI](https://circleci.com/). Both of which are free to try out.
+
 
 ### Troubleshooting failed deployments
 Deployment can fail for various reasons, if you get stuck with a page that says *Service Unavailable* or some other error, open an issue and I'll try to help you resolve the problems.
@@ -131,7 +134,7 @@ The project context is basically a set of options that determine which files are
 In this case, we use the following to define our project context: 
 ```json
     "include": [
-        "src/**/*"
+        "src-server/**/*"
     ]
 ```
 `include` takes an array of glob patterns of files to include in the compilation.
@@ -168,48 +171,6 @@ Below is a list of all the scripts this template has available:
 | `debug`                   | Performs a full build and then serves the app in watch mode                                       |
 | `serve-debug`             | Runs the app with the --inspect flag                                                               |
 | `watch-debug`             | The same as `watch` but includes the --inspect flag so you can attach a debugger                   |
-
-## Type Definition (`.d.ts`) Files
-TypeScript uses `.d.ts` files to provide types for JavaScript libraries that were not written in TypeScript.
-This is great because once you have a `.d.ts` file, TypeScript can type check that library and provide you better help in your editor.
-The TypeScript community actively shares all of the most up-to-date `.d.ts` files for popular libraries on a GitHub repository called [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types).
-Making sure that your `.d.ts` files are setup correctly is super important because once they're in place, you get an incredible amount of high quality type checking (and thus bug catching, IntelliSense, and other editor tools) for free.
-
-> **Note!** Because we're using `"noImplicitAny": true`, we are required to have a `.d.ts` file for **every** library we use. While you could set `noImplicitAny` to `false` to silence errors about missing `.d.ts` files, it is a best practice to have a `.d.ts` file for every library. (Even if the `.d.ts` file is [basically empty!](#writing-a-dts-file)) 
-
-### Installing `.d.ts` files from DefinitelyTyped
-For the most part, you'll find `.d.ts` files for the libraries you are using on DefinitelyTyped.
-These `.d.ts` files can be easily installed into your project by using the npm scope `@types`.
-For example, if we want the `.d.ts` file for jQuery, we can do so with `npm install --save-dev @types/jquery`.
-
-> **Note!** Be sure to add `--save-dev` (or `-D`) to your `npm install`. `.d.ts` files are project dependencies, but only used at compile time and thus should be dev dependencies.
-
-In this template, all the `.d.ts` files have already been added to `devDependencies` in `package.json`, so you will get everything you need after running your first `npm install`.
-Once `.d.ts` files have been installed using npm, you should see them in your `node_modules/@types` folder. 
-The compiler will always look in this folder for `.d.ts` files when resolving JavaScript libraries.
-
-#### Setting up TypeScript to look for `.d.ts` files in another folder
-The compiler knows to look in `node_modules/@types` by default, but to help the compiler find our own `.d.ts` files we have to configure path mapping in our `tsconfig.json`.
-Path mapping can get pretty confusing, but the basic idea is that the TypeScript compiler will look in specific places, in a specific order when resolving modules, and we have the ability to tell the compiler exactly how to do it.
-In the `tsconfig.json` for this project you'll see the following:
-```json
-"baseUrl": ".",
-"paths": {
-    "*": [
-        "node_modules/*",
-        "src/types/*"
-    ]
-}
-```
-This tells the TypeScript compiler that in addition to looking in `node_modules/@types` for every import (`*`) also look in our own `.d.ts` file location `<baseUrl>` + `src/types/*`.
-So when we write something like: 
-```ts
-import * as flash from "express-flash";
-```
-First the compiler will look for a `d.ts` file in `node_modules/@types` and then when it doesn't find one look in `src/types` and find our file `express-flash.d.ts`.
-
-## Debugging
-Debugging TypeScript is exactly like debugging JavaScript with one caveat, you need source maps.
 
 ### Source maps
 Source maps allow you to drop break points in your TypeScript source code and have that break point be hit by the JavaScript that is being executed at runtime. 
