@@ -31,10 +31,6 @@ jobs:
             git config --global user.name "CircleCI Deployer"
             git init --quiet
             git add .
-            git commit -m"Init"
-            git remote add heroku https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP.git
-            git pull heroku master --allow-unrelated-histories
-            git checkout --ours .
-            git add -u
             git commit -m"deploy_$CIRCLE_SHA1"
-            git push heroku master
+            git remote add heroku https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP.git
+            git push --force heroku master
