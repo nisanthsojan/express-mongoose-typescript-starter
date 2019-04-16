@@ -14,7 +14,7 @@
         "resolveJsonModule": true,
 
         "target": "es6",
-        "sourceMap": true,
+        "sourceMap": false,
         "outDir": "dist",
         "paths": {
             "*": [
