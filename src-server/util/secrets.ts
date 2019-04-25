@@ -16,7 +16,8 @@ export const IS_PROD = ENVIRONMENT === "production"; // Anything else is treated
 
 export const SESSION_SECRET = process.env["SESSION_SECRET"];
 export const SESSION_NAME = process.env["SESSION_NAME"];
-export const MONGODB_URI = IS_PROD ? process.env["MONGODB_URI"] : process.env["MONGODB_URI_LOCAL"];
+export const MONGODB_URI = process.env["MONGODB_URI"];
+export const SENDGRID_API_KEY = <string>process.env["SENDGRID_API_KEY"];
 
 if (!SESSION_SECRET) {
     logger.error("No client secret. Set SESSION_SECRET environment variable.");

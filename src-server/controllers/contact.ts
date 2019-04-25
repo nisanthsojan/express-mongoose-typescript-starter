@@ -1,15 +1,12 @@
-import nodemailer from "nodemailer";
 import { Request, Response } from "express";
 import { check, validationResult } from "express-validator/check";
 import CONSTANTS from "../config/constants.json";
+import sgMail from "@sendgrid/mail";
+import { MailData } from "@sendgrid/helpers/classes/mail";
 
-const transporter = nodemailer.createTransport({
-    service: "SendGrid",
-    auth: {
-        user: process.env.SENDGRID_USER,
-        pass: process.env.SENDGRID_PASSWORD
-    }
-});
+import { SENDGRID_API_KEY } from "../util/secrets";
+
+sgMail.setApiKey(SENDGRID_API_KEY);
 
 /**
  * GET /contact
@@ -47,20 +44,20 @@ export let postContact = [
             return res.status(400).redirect(req.app.namedRoutes.build("contact"));
         }
 
-        const mailOptions = {
+        const mailOptions: MailData = {
             to: CONSTANTS.APP_EMAIL,
             from: `${req.body.name} <${req.body.email}>`,
-            subject: "Contact Form",
+            subject: `Contact Form from ${CONSTANTS.APP_NAME}`,
             text: req.body.message
         };
 
-        transporter.sendMail(mailOptions, (err) => {
-            if (err) {
-                req.flash("errors", {msg: err.message});
-                return res.status(422).redirect(req.app.namedRoutes.build("contact"));
-            }
+        sgMail.send(mailOptions, false).then(result => {
             req.flash("success", {msg: "Email has been sent successfully!"});
             res.redirect(req.app.namedRoutes.build("contact"));
+        }, err => {
+            req.flash("errors", {msg: err.message});
+            return res.status(422).redirect(req.app.namedRoutes.build("contact"));
         });
+
     }
 ];

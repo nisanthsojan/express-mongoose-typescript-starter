@@ -4,34 +4,22 @@ import session, { SessionOptions } from "express-session";
 import bodyParser from "body-parser";
 import { ChildLogger } from "./util/logger";
 import helmet from "helmet";
-import dotenv from "dotenv";
-import mongo, { MongoUrlOptions } from "connect-mongo";
+import mongo, { MogooseConnectionOptions } from "connect-mongo";
 import flash from "express-flash";
 import path from "path";
-import mongoose from "mongoose";
 import { default as passport } from "./config/passport";
-import bluebird from "bluebird";
 import csurf from "csurf";
-import { MONGODB_URI, SESSION_NAME, SESSION_SECRET, IS_PROD } from "./util/secrets";
+import { SESSION_NAME, SESSION_SECRET, IS_PROD } from "./util/secrets";
+import express_enforces_ssl from "express-enforces-ssl";
+import mongoose from "./util/mongoose";
+import CONSTANTS from "./config/constants.json";
 
 const logger = ChildLogger(__filename);
 const MongoStore = mongo(session);
 
-// Load environment variables from .env file, where API keys and passwords are configured
-dotenv.config({path: ".env.example"});
 
 // Create Express server
 const app = express();
-
-// Connect to MongoDB
-const mongoUrl = <string>MONGODB_URI;
-(<any>mongoose).Promise = bluebird;
-mongoose.connect(mongoUrl, {useNewUrlParser: false}).then(() => {
-    /** ready to use. The `mongoose.connect()` promise resolves to undefined. */
-}).catch(err => {
-    logger.error("MongoDB connection error. Please make sure MongoDB is running. " + err);
-    // process.exit();
-});
 
 // Express configuration
 app.set("port", process.env.PORT || 3000);
@@ -39,6 +27,10 @@ app.set("port", process.env.PORT || 3000);
 * Use the compiled pug template files for production
  */
 if (IS_PROD) {
+
+    app.enable("trust proxy");
+    app.use(express_enforces_ssl());
+
     app.set("views", path.join(__dirname, "views"));
     app.set("view engine", "js");
     const runtime = require("pug").runtime;
@@ -60,18 +52,20 @@ app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(session(<SessionOptions>{
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
     secret: SESSION_SECRET,
-    store: new MongoStore(<MongoUrlOptions>{
-        url: mongoUrl,
+    store: new MongoStore(<MogooseConnectionOptions>{
+        mongooseConnection: mongoose.connection,
         autoReconnect: true
     }),
     name: SESSION_NAME,
     cookie: {
         secure: IS_PROD,
         httpOnly: true,
-    }
+        maxAge: 3600000
+    },
+    unset: "destroy"
 }));
 app.use(csurf());
 app.use((req, res, next) => {
@@ -88,7 +82,7 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-    res.locals._app_name = "ExMoBoTy Starter";
+    res.locals._app_name = CONSTANTS.APP_NAME;
     next();
 });
 

@@ -1,6 +1,5 @@
 import async from "async";
 import crypto from "crypto";
-import nodemailer from "nodemailer";
 import { default as User, UserModel, AuthToken } from "../models/User";
 import { Request, Response, NextFunction } from "express";
 import { IVerifyOptions } from "passport-local";
@@ -10,8 +9,12 @@ import { check, validationResult } from "express-validator/check";
 import sanitize from "mongo-sanitize";
 import { ChildLogger } from "../util/logger";
 import CONSTANTS from "../config/constants.json";
+import sgMail from "@sendgrid/mail";
+import { MailData } from "@sendgrid/helpers/classes/mail";
+import { SENDGRID_API_KEY } from "../util/secrets";
 
 const logger = ChildLogger(__filename);
+sgMail.setApiKey(SENDGRID_API_KEY);
 /**
  * GET /login
  * Login page.
@@ -206,13 +209,6 @@ export let postForgot = [
                 });
             },
             function sendForgotPasswordEmail(token: AuthToken, user: UserModel, done: Function) {
-                const transporter = nodemailer.createTransport({
-                    service: "SendGrid",
-                    auth: {
-                        user: process.env.SENDGRID_USER,
-                        pass: process.env.SENDGRID_PASSWORD
-                    }
-                });
                 const resetUrl = req.app.namedRoutes.build("admin.reset", {token: token.accessToken});
                 logger.debug(`http://${req.headers.host}${resetUrl}`);
                 const mailOptions = {
@@ -224,10 +220,11 @@ export let postForgot = [
           http://${req.headers.host}${resetUrl}\n\n
           If you did not request this, please ignore this email and your password will remain unchanged.\n`
                 };
-                transporter.sendMail(mailOptions, (err) => {
-                    req.flash("info", {msg: `An e-mail has been sent to ${user.email} with further instructions.`});
-                    done(err);
-                });
+                // transporter.sendMail(mailOptions, (err) => {
+                //     req.flash("info", {msg: `An e-mail has been sent to ${user.email} with further instructions.`});
+                //     done(err);
+                // });
+                done();
             }
         ], (err) => {
             if (err) {
@@ -314,13 +311,7 @@ export let postReset = [
                     });
             },
             function sendResetPasswordEmail(user: UserModel, done: Function) {
-                const transporter = nodemailer.createTransport({
-                    service: "SendGrid",
-                    auth: {
-                        user: process.env.SENDGRID_USER,
-                        pass: process.env.SENDGRID_PASSWORD
-                    }
-                });
+                /*
                 const mailOptions = {
                     to: user.email,
                     from: CONSTANTS.APP_EMAIL,
@@ -330,7 +321,8 @@ export let postReset = [
                 transporter.sendMail(mailOptions, (err) => {
                     req.flash("success", {msg: "Success! Your password has been changed."});
                     done(err);
-                });
+                });*/
+                done();
             }
         ], (err) => {
             if (err) {
