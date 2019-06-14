@@ -4,6 +4,10 @@
 The main purpose of this repository is to show a good starter template in TypeScript using ExpressJS Mongoose Bootstrap v4.
 I will try to keep this as up-to-date as possible, but community contributions and recommendations for improvements are encouraged and will be most welcome. 
 
+- Only the production required dependencies are installed in server. 
+- PUG templates are compiled on build. This makes it very fast.
+
+
 **Live demo:** [https://embt-starter.herokuapp.com/](https://embt-starter.herokuapp.com/)
 
 

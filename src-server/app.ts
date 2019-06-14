@@ -4,7 +4,7 @@ import session, { SessionOptions } from "express-session";
 import bodyParser from "body-parser";
 import { ChildLogger } from "./util/logger";
 import helmet from "helmet";
-import mongo, { MogooseConnectionOptions } from "connect-mongo";
+import mongo, { MongooseConnectionOptions } from "connect-mongo";
 import flash from "express-flash";
 import path from "path";
 import { default as passport } from "./config/passport";
@@ -55,7 +55,7 @@ app.use(session(<SessionOptions>{
     resave: false,
     saveUninitialized: false,
     secret: SESSION_SECRET,
-    store: new MongoStore(<MogooseConnectionOptions>{
+    store: new MongoStore(<MongooseConnectionOptions>{
         mongooseConnection: mongoose.connection,
         autoReconnect: true
     }),
