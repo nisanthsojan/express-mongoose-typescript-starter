@@ -1,20 +1,26 @@
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
+import { ChildLogger } from "../util/logger";
 
+const logger = ChildLogger(__filename);
 const SALT_ROUND = 10;
 
-export interface UserModel extends mongoose.Document {
+export interface IUserModel extends mongoose.Document {
+    id: mongoose.Schema.Types.ObjectId;
     email: string;
     password: string;
-    passwordResetToken: string;
-    passwordResetExpires: Date;
+    passwordResetToken: string | undefined;
+    passwordResetExpires: Date | undefined;
+    emailVerificationToken: string | undefined;
+    emailVerified: boolean;
     profile: {
         name: string;
+        gender: string;
     };
     comparePassword: comparePasswordFunction;
 }
 
-type comparePasswordFunction = (this: UserModel, candidatePassword: string, cb: (err: any, isMatch: any) => {}) => void;
+type comparePasswordFunction = (this: IUserModel, candidatePassword: string, cb: (err: any, isMatch: any) => {}) => void;
 
 export type AuthToken = {
     accessToken: string,
@@ -26,8 +32,11 @@ const userSchema = new mongoose.Schema({
     password: String,
     passwordResetToken: String,
     passwordResetExpires: Date,
+    emailVerificationToken: String,
+    emailVerified: Boolean,
     profile: {
         name: String,
+        gender: String,
     }
 }, {timestamps: true});
 
@@ -35,31 +44,35 @@ const userSchema = new mongoose.Schema({
  * Password hash middleware.
  */
 userSchema.pre("save", function save(next) {
-    const user = <UserModel>this;
+    const user = <IUserModel>this;
     if (!user.isModified("password")) {
         return next();
     }
-    bcrypt.genSalt(SALT_ROUND, (err, salt) => {
+
+    return bcrypt.genSalt(SALT_ROUND, (err, salt) => {
         if (err) {
+            logger.error(err);
             return next(err);
         }
-        bcrypt.hash(user.password, salt, (err, hash) => {
+
+        return bcrypt.hash(user.password, salt, (err, hash) => {
             if (err) {
+                logger.error(err);
                 return next(err);
             }
             user.password = hash;
-            next();
+            return next();
         });
     });
 });
 
 const comparePassword: comparePasswordFunction = function (candidatePassword, cb) {
-    bcrypt.compare(candidatePassword, this.password, (err, isMatch: boolean) => {
-        cb(err, isMatch);
+    return bcrypt.compare(candidatePassword, this.password, (err, isMatch: boolean) => {
+        return cb(err, isMatch);
     });
 };
 
 userSchema.methods.comparePassword = comparePassword;
 
-export const User = mongoose.model<UserModel>("User", userSchema);
+export const User = mongoose.model<IUserModel>("User", userSchema);
 export default User;

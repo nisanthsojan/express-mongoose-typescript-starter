@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { check, validationResult } from "express-validator/check";
+import { check, validationResult } from "express-validator";
 import CONSTANTS from "../config/constants.json";
 import sgMail from "@sendgrid/mail";
 import { MailData } from "@sendgrid/helpers/classes/mail";
@@ -13,7 +13,7 @@ sgMail.setApiKey(SENDGRID_API_KEY);
  * Contact form page.
  */
 export let getContact = (req: Request, res: Response) => {
-    res.render("contact", {
+    return res.render("contact", {
         title: "Contact"
     });
 };
@@ -51,9 +51,9 @@ export let postContact = [
             text: req.body.message
         };
 
-        sgMail.send(mailOptions, false).then(result => {
+        return sgMail.send(mailOptions, false).then(result => {
             req.flash("success", {msg: "Email has been sent successfully!"});
-            res.redirect(req.app.namedRoutes.build("contact"));
+            return res.redirect(req.app.namedRoutes.build("contact"));
         }, err => {
             req.flash("errors", {msg: err.message});
             return res.status(422).redirect(req.app.namedRoutes.build("contact"));

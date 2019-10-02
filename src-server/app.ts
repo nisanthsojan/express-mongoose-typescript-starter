@@ -105,8 +105,9 @@ app.use((req, res, next) => {
  *  include routes (Controller)
  */
 
-import routes from "./routes";
+import { expressRouter, router } from "./routes";
 
-routes(app);
+router.registerAppHelpers(app);
+app.use("/", expressRouter);
 
 export default app;

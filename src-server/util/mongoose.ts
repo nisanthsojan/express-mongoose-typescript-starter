@@ -6,7 +6,9 @@ import { MONGODB_URI, IS_PROD } from "./secrets";
 
 const mongoUrl = <string>MONGODB_URI;
 const options: ConnectionOptions = {
-    useNewUrlParser: false
+    useUnifiedTopology: true,
+    useNewUrlParser: true,
+    useCreateIndex: true
 };
 (<any>mongoose).Promise = bluebird;
 const logger = ChildLogger(__filename);

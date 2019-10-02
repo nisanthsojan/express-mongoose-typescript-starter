@@ -1,11 +1,11 @@
 import async from "async";
 import crypto from "crypto";
-import { default as User, UserModel, AuthToken } from "../models/User";
+import { default as User, IUserModel, AuthToken } from "../models/User";
 import { Request, Response, NextFunction } from "express";
 import { IVerifyOptions } from "passport-local";
 import { WriteError } from "mongodb";
 import { default as passport } from "../config/passport";
-import { check, validationResult } from "express-validator/check";
+import { check, validationResult } from "express-validator";
 import sanitize from "mongo-sanitize";
 import { ChildLogger } from "../util/logger";
 import CONSTANTS from "../config/constants.json";
@@ -23,7 +23,7 @@ export let getLogin = (req: Request, res: Response) => {
     if (req.user) {
         return res.redirect(req.app.namedRoutes.build("index"));
     }
-    res.render("account/login", {
+    return res.render("account/login", {
         title: "Login"
     });
 };
@@ -47,20 +47,22 @@ export let postLogin = [
             return res.status(400).redirect(req.app.namedRoutes.build("admin.login"));
         }
 
-        passport.authenticate("local", (err: Error, user: UserModel, info: IVerifyOptions) => {
+        return passport.authenticate("local", (err: Error, user: IUserModel, info: IVerifyOptions) => {
             if (err) {
+                logger.error(err);
                 return next(err);
             }
             if (!user) {
                 req.flash("errors", {msg: info.message});
                 return res.status(422).redirect(req.app.namedRoutes.build("admin.login"));
             }
-            req.logIn(user, (err) => {
+            return req.logIn(user, (err) => {
                 if (err) {
+                    logger.error(err);
                     return next(err);
                 }
                 req.flash("success", {msg: "Success! You are logged in."});
-                res.redirect(req.session!.returnTo || req.app.namedRoutes.build("index"));
+                return res.redirect(req.session!.returnTo || req.app.namedRoutes.build("index"));
             });
         })(req, res, next);
     }
@@ -72,7 +74,7 @@ export let postLogin = [
  */
 export let logout = (req: Request, res: Response) => {
     req.logout();
-    res.redirect(req.app.namedRoutes.build("index"));
+    return res.redirect(req.app.namedRoutes.build("index"));
 };
 
 /**
@@ -83,7 +85,7 @@ export let getSignup = (req: Request, res: Response) => {
     if (req.user) {
         return res.redirect(req.app.namedRoutes.build("index"));
     }
-    res.render("account/signup", {
+    return res.render("account/signup", {
         title: "Register as a Supervisor"
     });
 };
@@ -120,7 +122,7 @@ export let postSignup = [
             return res.status(400).redirect(req.app.namedRoutes.build("admin.register"));
         }
 
-        const user = new User({
+        const user: IUserModel = new User({
             email: sanitize(req.body.email),
             password: sanitize(req.body.password),
             profile: {
@@ -128,23 +130,26 @@ export let postSignup = [
             }
         });
 
-        User.findOne({email: sanitize(req.body.email)}, (err, existingUser) => {
+        return User.findOne({email: sanitize(req.body.email)}, (err, existingUser: IUserModel) => {
             if (err) {
+                logger.error(err);
                 return next(err);
             }
             if (existingUser) {
                 req.flash("errors", {msg: "Account with that email address already exists."});
                 return res.status(422).redirect(req.app.namedRoutes.build("admin.register"));
             }
-            user.save((err) => {
+            return user.save((err) => {
                 if (err) {
+                    logger.error(err);
                     return next(err);
                 }
-                req.logIn(user, (err) => {
+                return req.logIn(user, (err) => {
                     if (err) {
+                        logger.error(err);
                         return next(err);
                     }
-                    res.redirect(req.app.namedRoutes.build("index"));
+                    return res.redirect(req.app.namedRoutes.build("index"));
                 });
             });
         });
@@ -159,7 +164,7 @@ export let getForgot = (req: Request, res: Response) => {
     if (req.isAuthenticated()) {
         return res.redirect(req.app.namedRoutes.build("index"));
     }
-    res.render("account/forgot", {
+    return res.render("account/forgot", {
         title: "Forgot Password"
     });
 };
@@ -184,17 +189,20 @@ export let postForgot = [
 
         async.waterfall([
             function createRandomToken(done: Function) {
-                crypto.randomBytes(16, (err, buf) => {
+
+                return crypto.randomBytes(16, (err, buf) => {
                     const token = buf.toString("hex");
-                    done(err, {
+
+                    return done(err, {
                         accessToken: token,
                         kind: "local"
                     });
                 });
             },
             function setRandomToken(token: AuthToken, done: Function) {
-                User.findOne({email: sanitize(req.body.email)}, (err, user: any) => {
+                return User.findOne({email: sanitize(req.body.email)}, (err, user: IUserModel) => {
                     if (err) {
+                        logger.error(err);
                         return done(err);
                     }
                     if (!user) {
@@ -202,13 +210,13 @@ export let postForgot = [
                         return res.status(422).redirect(req.app.namedRoutes.build("admin.forgot"));
                     }
                     user.passwordResetToken = token.accessToken;
-                    user.passwordResetExpires = Date.now() + parseInt(CONSTANTS.PASSWORD_RESET_EXPIRES); // 1 hour
-                    user.save((err: WriteError) => {
-                        done(err, token, user);
+                    user.passwordResetExpires = new Date(Date.now() + parseInt(CONSTANTS.PASSWORD_RESET_EXPIRES)); // 1 hour
+                    return user.save((err: WriteError) => {
+                        return done(err, token, user);
                     });
                 });
             },
-            function sendForgotPasswordEmail(token: AuthToken, user: UserModel, done: Function) {
+            function sendForgotPasswordEmail(token: AuthToken, user: IUserModel, done: Function) {
                 const resetUrl = req.app.namedRoutes.build("admin.reset", {token: token.accessToken});
                 logger.debug(`http://${req.headers.host}${resetUrl}`);
                 const mailOptions = {
@@ -224,13 +232,14 @@ export let postForgot = [
                 //     req.flash("info", {msg: `An e-mail has been sent to ${user.email} with further instructions.`});
                 //     done(err);
                 // });
-                done();
+                return done();
             }
         ], (err) => {
             if (err) {
+                logger.error(err);
                 return next(err);
             }
-            res.redirect(req.app.namedRoutes.build("admin.forgot"));
+            return res.redirect(req.app.namedRoutes.build("admin.forgot"));
         });
     }
 ];
@@ -244,18 +253,21 @@ export let getReset = (req: Request, res: Response, next: NextFunction) => {
     if (req.isAuthenticated()) {
         return res.redirect(req.app.namedRoutes.build("index"));
     }
-    User
+
+    return User
         .findOne({passwordResetToken: sanitize(req.params.token)})
         .where("passwordResetExpires").gt(Date.now())
         .exec((err, user) => {
             if (err) {
+                logger.error(err);
                 return next(err);
             }
             if (!user) {
                 req.flash("errors", {msg: "Password reset token is invalid or has expired."});
                 return res.status(422).redirect(req.app.namedRoutes.build("admin.forgot"));
             }
-            res.render("account/reset", {
+
+            return res.render("account/reset", {
                 title: "Password Reset"
             });
         });
@@ -286,11 +298,13 @@ export let postReset = [
 
         async.waterfall([
             function resetPassword(done: Function) {
-                User
+
+                return User
                     .findOne({passwordResetToken: sanitize(req.params.token)})
                     .where("passwordResetExpires").gt(Date.now())
-                    .exec((err, user: any) => {
+                    .exec((err, user: IUserModel) => {
                         if (err) {
+                            logger.error(err);
                             return next(err);
                         }
                         if (!user) {
@@ -300,17 +314,20 @@ export let postReset = [
                         user.password = sanitize(req.body.password);
                         user.passwordResetToken = undefined;
                         user.passwordResetExpires = undefined;
-                        user.save((err: WriteError) => {
+
+                        return user.save((err: WriteError) => {
                             if (err) {
+                                logger.error(err);
                                 return next(err);
                             }
-                            req.logIn(user, (err) => {
-                                done(err, user);
+
+                            return req.logIn(user, (err) => {
+                                return done(err, user);
                             });
                         });
                     });
             },
-            function sendResetPasswordEmail(user: UserModel, done: Function) {
+            function sendResetPasswordEmail(user: IUserModel, done: Function) {
                 /*
                 const mailOptions = {
                     to: user.email,
@@ -322,13 +339,14 @@ export let postReset = [
                     req.flash("success", {msg: "Success! Your password has been changed."});
                     done(err);
                 });*/
-                done();
+                return done();
             }
         ], (err) => {
             if (err) {
+                logger.error(err);
                 return next(err);
             }
-            res.redirect(req.app.namedRoutes.build("index"));
+            return res.redirect(req.app.namedRoutes.build("index"));
         });
     }
 ];
@@ -339,7 +357,7 @@ export let postReset = [
  * Profile page.
  */
 export let getAccount = (req: Request, res: Response) => {
-    res.render("account/profile", {
+    return res.render("account/profile", {
         title: "Account Management"
     });
 };
@@ -353,7 +371,7 @@ export let postUpdateProfile = [
         .not().isEmpty().withMessage("Full Name cannot be blank")
         .trim()
         .escape(),
-    (req: Request, res: Response, next: NextFunction) => {
+    (req: Request, res: Response) => {
 
         const errors = validationResult(req);
 
@@ -362,19 +380,27 @@ export let postUpdateProfile = [
             return res.status(400).redirect("back");
         }
 
-        User.findById(req.user.id, (err, user: UserModel) => {
+        if (!req.user) {
+            req.flash("errors", {msg: "App error."});
+            return res.status(400).redirect("back");
+        }
+
+        return User.findById(req.user.id, (err, user: IUserModel) => {
             if (err) {
-                return next(err);
+                logger.error(err);
+                req.flash("errors", {msg: "App error."});
+                return res.status(422).redirect(req.app.namedRoutes.build("admin.account"));
             }
             user.profile.name = sanitize(req.body.fullName) || "";
-            user.save((err: WriteError) => {
+
+            return user.save((err: WriteError) => {
                 if (err) {
                     logger.error(err);
-                    req.flash("errors", {msg: "Database error."});
+                    req.flash("errors", {msg: "App error."});
                     return res.status(422).redirect(req.app.namedRoutes.build("admin.account"));
                 }
                 req.flash("success", {msg: "Profile information has been updated."});
-                res.redirect(req.app.namedRoutes.build("admin.account"));
+                return res.redirect(req.app.namedRoutes.build("admin.account"));
             });
         });
     }
@@ -403,17 +429,25 @@ export let postUpdatePassword = [
             return res.status(400).redirect("back");
         }
 
-        User.findById(req.user.id, (err, user: UserModel) => {
+        if (!req.user) {
+            req.flash("errors", {msg: "Undefined user"});
+            return res.status(400).redirect("back");
+        }
+
+        return User.findById(req.user.id, (err, user: IUserModel) => {
             if (err) {
+                logger.error(err);
                 return next(err);
             }
             user.password = sanitize(req.body.password);
-            user.save((err: WriteError) => {
+
+            return user.save((err: WriteError) => {
                 if (err) {
+                    logger.error(err);
                     return next(err);
                 }
                 req.flash("success", {msg: "Password has been changed."});
-                res.redirect(req.app.namedRoutes.build("admin.account"));
+                return res.redirect(req.app.namedRoutes.build("admin.account"));
             });
         });
     }];
@@ -423,13 +457,19 @@ export let postUpdatePassword = [
  * Delete user account.
  */
 export let postDeleteAccount = (req: Request, res: Response, next: NextFunction) => {
-    User.remove({_id: req.user.id}, (err) => {
+    if (!req.user) {
+        logger.error("Undefined user");
+        req.flash("errors", {msg: "Undefined user."});
+        return res.redirect(req.app.namedRoutes.build("index"));
+    }
+    return User.remove({_id: req.user.id}, (err) => {
         if (err) {
+            logger.error(err);
             return next(err);
         }
         req.logout();
         req.flash("info", {msg: "Your account has been deleted."});
-        res.redirect(req.app.namedRoutes.build("index"));
+        return res.redirect(req.app.namedRoutes.build("index"));
     });
 };
 
