@@ -1,0 +1,23 @@
+# Editors
+.idea
+*.iml
+
+# Coverage reports
+.nyc_output
+coverage
+
+# Dependency directory
+node_modules/
+
+# Ignore built directory
+dist/
+tests-out/
+
+# package.json is formatted by package managers, so we ignore it here
+package.json
+package-lock.json
+
+# Media files
+src-public/images/
+src-public/favicon.png
+src-public/fonts/

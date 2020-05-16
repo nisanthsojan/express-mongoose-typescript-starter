@@ -1,0 +1,9 @@
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "target": "esnext",
+        "sourceMap": false,
+        "outDir": "../tests-out",
+        "moduleResolution": "node"
+    }
+}

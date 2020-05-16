@@ -1,36 +1,36 @@
 version: 2.0
 jobs:
-  build:
-    working_directory: ~/app
-    docker:
-      - image: circleci/node:11.9.0-stretch
-    steps:
-      - checkout
-      - run:
-          name: "Check Node and NPM version"
-          command: |
-            node -v
-            npm -v
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-      - run:
-          name: "Install npm modules"
-          command: npm install
-      - save_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-          paths:
-            - node_modules
-      - run:
-          name: "Build dist"
-          command: npm run build-prod
-      - run:
-          name: "Deploy to Heroku"
-          command: |
-            cd ~/app/dist
-            git config user.email "deployer@circleci.com"
-            git config --global user.name "CircleCI Deployer"
-            git init --quiet
-            git add .
-            git commit -m"deploy_$CIRCLE_SHA1"
-            git remote add heroku https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP.git
-            git push --force heroku master
+    build:
+        working_directory: ~/app
+        docker:
+            - image: circleci/node:14.2.0-stretch
+        steps:
+            - checkout
+            - run:
+                  name: "Check Node and NPM version"
+                  command: |
+                      node -v
+                      npm -v
+            - restore_cache:
+                  key: dependency-cache-{{ checksum "package.json" }}
+            - run:
+                  name: "Install npm modules"
+                  command: npm install
+            - save_cache:
+                  key: dependency-cache-{{ checksum "package.json" }}
+                  paths:
+                      - node_modules
+            - run:
+                  name: "Build dist"
+                  command: npm run build:prod
+            - run:
+                  name: "Deploy to Heroku"
+                  command: |
+                      cd ~/app/dist
+                      git config user.email "deployer@circleci.com"
+                      git config --global user.name "CircleCI Deployer"
+                      git init --quiet
+                      git add .
+                      git commit -m"deploy_$CIRCLE_SHA1"
+                      git remote add heroku https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP.git
+                      git push --force heroku master

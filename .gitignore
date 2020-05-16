@@ -14,10 +14,12 @@ results
 tmp
 
 # Coverage reports
+.nyc_output
 coverage
 
 # API keys and secrets
 .env
+.env.testing
 
 # Dependency directory
 node_modules
@@ -32,5 +34,5 @@ bower_components
 Thumbs.db
 
 # Ignore built directory
-dist
-
+dist/
+tests-out/

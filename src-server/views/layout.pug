@@ -1,0 +1,25 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
+    title #{title} - #{_appName}
+    meta(name='description', content='')
+    meta(name='theme-color' content='#4DA5F4')
+    meta(name='csrf-token', content=_csrf)
+    include partials/favicons
+    link(rel='stylesheet', href=`/css/main.${_contentHash}.css`)
+
+  body
+    header
+      include partials/header
+
+    main(role="main")
+      include partials/flash
+      block content
+    hr
+    include partials/footer
+
+    script(src=`/js/vendors.${_contentHash}.bundle.js`)
+    script(src=`/js/main.${_contentHash}.bundle.js`, defer=true)

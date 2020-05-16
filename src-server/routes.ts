@@ -1,40 +1,63 @@
-import express from "express";
-import Router from "named-routes";
-
-import { ChildLogger } from "./util/logger";
-// API keys and Passport configuration
-import * as passportConfig from "./config/passport";
+import { Express } from "express";
+import NamedRouter from "named-routes";
+import { isAuthenticated } from "./config/passport";
+import { APP_NAME, CONTENT_HASH } from "./config/constants";
 // Controllers (route handlers)
 import * as userController from "./controllers/user";
 import * as homeController from "./controllers/home";
 import * as contactController from "./controllers/contact";
 
-const logger = ChildLogger(__filename);
-export const router = new Router();
-export const expressRouter = express.Router();
-router.extendExpress(expressRouter);
+const namedRouter = new NamedRouter({
+    caseSensitive: true
+});
 
-// Route prefixes
-const adminRoutePrefix = "/admin";
+export function appRoutes(expressApp: Express): void {
+    namedRouter.extendExpress(expressApp);
+    namedRouter.registerAppHelpers(expressApp);
 
-expressRouter.get("/", "index", homeController.index);
-expressRouter.get("/contact", "contact", contactController.getContact);
-expressRouter.post("/contact", "contact", contactController.postContact);
+    // pass variables to our templates + all requests
+    expressApp.use((req, res, next) => {
+        res.locals.user = req.user;
+        res.locals._flashes = req.flash();
+        res.locals._appName = APP_NAME;
+        res.locals._contentHash = CONTENT_HASH;
+        next();
+    });
 
+    // Route prefixes
+    const adminRoutePrefix = "/admin";
 
-// Admin User Routes
-expressRouter.get(`${adminRoutePrefix}/register`, "admin.register", userController.getSignup);
-expressRouter.post(`${adminRoutePrefix}/register`, userController.postSignup);
-expressRouter.get(`${adminRoutePrefix}/entry`, "admin.login", userController.getLogin);
-expressRouter.post(`${adminRoutePrefix}/entry`, userController.postLogin);
-expressRouter.get(`${adminRoutePrefix}/logout`, "admin.logout", userController.logout);
-expressRouter.get(`${adminRoutePrefix}/forgot`, "admin.forgot", userController.getForgot);
-expressRouter.post(`${adminRoutePrefix}/forgot`, userController.postForgot);
-expressRouter.get(`${adminRoutePrefix}/reset/:token`, "admin.reset", userController.getReset);
-expressRouter.post(`${adminRoutePrefix}/reset/:token`, userController.postReset);
-expressRouter.get(`${adminRoutePrefix}/account`, "admin.account", passportConfig.isAuthenticated, userController.getAccount);
-expressRouter.post(`${adminRoutePrefix}/account/profile`, "admin.account.profile", passportConfig.isAuthenticated, userController.postUpdateProfile);
-expressRouter.post(`${adminRoutePrefix}/account/password`, "admin.account.password", passportConfig.isAuthenticated, userController.postUpdatePassword);
-expressRouter.post(`${adminRoutePrefix}/account/delete`, "admin.account.delete", passportConfig.isAuthenticated, userController.postDeleteAccount);
+    expressApp.get("/", "index", homeController.index);
+    expressApp.get("/contact", "contact", contactController.getContact);
+    expressApp.post("/contact", "contact", contactController.postContact);
 
-export default expressRouter;
+    // Admin User Routes
+    expressApp.get(`${adminRoutePrefix}/register`, "admin.register", userController.getSignup);
+    expressApp.post(`${adminRoutePrefix}/register`, userController.postSignup);
+    expressApp.get(`${adminRoutePrefix}/entry`, "admin.login", userController.getLogin);
+    expressApp.post(`${adminRoutePrefix}/entry`, userController.postLogin);
+    expressApp.get(`${adminRoutePrefix}/logout`, "admin.logout", userController.logout);
+    expressApp.get(`${adminRoutePrefix}/forgot`, "admin.forgot", userController.getForgot);
+    expressApp.post(`${adminRoutePrefix}/forgot`, userController.postForgot);
+    expressApp.get(`${adminRoutePrefix}/reset/:token`, "admin.reset", userController.getReset);
+    expressApp.post(`${adminRoutePrefix}/reset/:token`, userController.postReset);
+    expressApp.get(`${adminRoutePrefix}/account`, "admin.account", isAuthenticated, userController.getAccount);
+    expressApp.post(
+        `${adminRoutePrefix}/account/profile`,
+        "admin.account.profile",
+        isAuthenticated,
+        userController.postUpdateProfile
+    );
+    expressApp.post(
+        `${adminRoutePrefix}/account/password`,
+        "admin.account.password",
+        isAuthenticated,
+        userController.postUpdatePassword
+    );
+    expressApp.post(
+        `${adminRoutePrefix}/account/delete`,
+        "admin.account.delete",
+        isAuthenticated,
+        userController.postDeleteAccount
+    );
+}

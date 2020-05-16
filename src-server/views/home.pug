@@ -1,0 +1,128 @@
+extends layout
+
+block content
+  div#myCarousel.carousel.slide(data-ride='carousel')
+    ol.carousel-indicators
+      li.active(data-target='#myCarousel' data-slide-to='0')
+      li(data-target='#myCarousel' data-slide-to='1')
+      li(data-target='#myCarousel' data-slide-to='2')
+
+    div.carousel-inner
+      div.carousel-item.active
+        img(src='/images/responsive.svg', alt='Responsive Image', width=140)
+        div.container
+          div.carousel-caption.text-left
+            h1 #{_appName}
+            p A boilerplate for Node.js web applications using ExpressJS, Mongoose, Bootstrap, Typescript.
+            p
+              a.btn.btn-lg.btn-primary(href='#' role='button') Sign up today
+
+      div.carousel-item
+        img(src='/images/responsive.svg', alt='Responsive Image', width=140)
+        div.container
+          div.carousel-caption
+            h1=_appName
+            p A boilerplate for Node.js web applications using ExpressJS, Mongoose, Bootstrap, Typescript.
+            p
+              a.btn.btn-lg.btn-primary(href='#' role='button') Learn more
+
+      div.carousel-item
+        img(src='/images/responsive.svg', alt='Responsive Image', width=140)
+        div.container
+          div.carousel-caption.text-right
+            h1=_appName
+            p A boilerplate for Node.js web applications using ExpressJS, Mongoose, Bootstrap, Typescript.
+            p
+              a.btn.btn-lg.btn-primary(href='#' role='button') Browse gallery
+
+    a.carousel-control-prev(href='#myCarousel' role='button' data-slide='prev')
+      span.carousel-control-prev-icon(aria-hidden='true')
+      span.sr-only Previous
+
+    a.carousel-control-next(href='#myCarousel' role='button' data-slide='next')
+      span.carousel-control-next-icon(aria-hidden='true')
+      span.sr-only Next
+
+
+  div.container
+    div.card-deck
+      div.card.text-white.bg-primary
+        img.card-img-top(src='/images/responsive.svg', alt='Responsive Image', height=200)
+        div.card-body
+          h5.card-title Heading
+          p.card-text Donec sed odio dui. Etiam porta sem malesuada magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna.
+        div.card-footer
+          a.btn.btn-light(href='#' role='button') View details
+
+      div.card.text-white.bg-warning
+        img.card-img-top(src='/images/responsive.svg', alt='Responsive Image', height=200)
+        div.card-body
+          h5.card-title Heading
+          p.card-text Donec sed odio dui. Etiam porta sem malesuada magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna.
+        div.card-footer
+          a.btn.btn-primary(href='#' role='button') View details
+
+      div.card.text-white.bg-success
+        img.card-img-top(src='/images/responsive.svg', alt='Responsive Image', height=200)
+        div.card-body
+          h5.card-title Heading
+          p.card-text Donec sed odio dui. Etiam porta sem malesuada magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna.
+        div.card-footer
+          a.btn.btn-dark(href='#' role='button') View details
+
+  hr.my-5
+
+  div.container
+    div.row
+      div.col-md-7
+        h1.mt-5
+          | First featurette heading.
+          |
+          span.text-muted It’ll blow your mind.
+        p.lead Donec ullamcorper nulla non metus auctor fringilla. Vestibulum id ligula porta felis euismod semper. Praesent commodo cursus magna, vel scelerisque nisl consectetur. Fusce dapibus, tellus ac cursus commodo.
+      div.col-md-5
+        img(src='/images/responsive.svg', alt='Responsive Image', width=400, height=400)
+
+
+
+    hr.my-5
+    div.row
+      div.col-md-7.order-md-2
+        h1.mt-5
+          | Oh yeah, it’s that good.
+          |
+          span.text-muted See for yourself.
+        p.lead Donec ullamcorper nulla non metus auctor fringilla. Vestibulum id ligula porta felis euismod semper. Praesent commodo cursus magna, vel scelerisque nisl consectetur. Fusce dapibus, tellus ac cursus commodo.
+      div.col-md-5.order-md-1
+        img(src='/images/responsive.svg', alt='Responsive Image', width=400, height=400)
+
+
+
+
+  hr.my-5
+
+  div.container
+    h1 #{_appName}
+    p.lead A boilerplate for Node.js web applications using ExpressJS, Mongoose, Bootstrap, Typescript.
+    hr
+    .row
+      .col-sm-6
+        h2 Heading
+        p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+        p
+          a.btn.btn-default(href='#', role='button') View details »
+      .col-sm-6
+        h2 Heading
+        p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+        p
+          a.btn.btn-default(href='#', role='button') View details »
+      .col-sm-6
+        h2 Heading
+        p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+        p
+          a.btn.btn-default(href='#', role='button') View details »
+      .col-sm-6
+        h2 Heading
+        p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+        p
+          a.btn.btn-default(href='#', role='button') View details »

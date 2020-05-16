@@ -1,39 +1,42 @@
 import errorHandler from "errorhandler";
-import { dbConnection } from "./util/mongoose";
-import { default as app } from "./app";
+import { mongooseConnection } from "./util/mongoose";
+import { ServerApplication } from "./app";
 import { IS_PROD } from "./util/secrets";
+import { NextFunction, Request, Response } from "express";
 
-
-dbConnection((error: any) => {
-  if (error) {
-    console.error("Error", error);
-    process.exit();
-  }
-
-  if (!IS_PROD) {
-    /**
-     * Error Handler. Provides full stack - remove for production
-     */
-    app.use(errorHandler());
-  } else {
-    app.use((err, req, res, next) => {
-      console.error("Error", err);
-      res.status(500);
-      res.render("error", {
-        title: "Error",
-        error: err
-      });
+mongooseConnection
+    .connect()
+    .then(() => new ServerApplication().init())
+    .then((expressApp) => {
+        if (!IS_PROD) {
+            /**
+             * Error Handler. Provides full stack - remove for production
+             */
+            expressApp.use(errorHandler());
+        } else {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            expressApp.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+                console.error("Error", err);
+                res.status(500);
+                res.render("error", {
+                    title: "Error",
+                    error: err
+                });
+            });
+        }
+        /**
+         * Start Express server.
+         */
+        expressApp.listen(expressApp.get("port"), () => {
+            console.log(
+                "  App is running at http://localhost:%d in %s mode",
+                expressApp.get("port"),
+                expressApp.get("env")
+            );
+            console.log("  Press CTRL-C to stop\n");
+        });
+    })
+    .catch((error) => {
+        console.error("Error", error);
+        process.exit();
     });
-  }
-  /**
-   * Start Express server.
-   */
-  app.listen(app.get("port"), () => {
-    console.log(
-        "  App is running at http://localhost:%d in %s mode",
-        app.get("port"),
-        app.get("env")
-    );
-    console.log("  Press CTRL-C to stop\n");
-  });
-});

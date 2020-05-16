@@ -1,10 +1,10 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 
 /**
  * GET /
  * Home page.
  */
-export let index = (req: Request, res: Response) => {
+export const index = function (req: Request, res: Response): void {
     res.render("home", {
         title: "Home"
     });

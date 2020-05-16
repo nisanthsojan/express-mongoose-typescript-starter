@@ -1,29 +1,17 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-
         /* Strict Type-Checking Options */
         "strict": true,
-        "noImplicitAny": false,
+        "noImplicitAny": true,
         "strictNullChecks": true,
         "alwaysStrict": true,
-        /* Module Resolution Options */
-        "moduleResolution": "node",
-        "baseUrl": ".",
         "esModuleInterop": true,
         "resolveJsonModule": true,
-
-        "target": "es6",
-        "sourceMap": false,
-        "outDir": "dist",
-        "paths": {
-            "*": [
-                "node_modules/*",
-                "src-server/types/*"
-            ]
-        }
-    },
-    "include": [
-        "src-server/**/*"
-    ]
+        "baseUrl": ".",
+        "forceConsistentCasingInFileNames": true,
+        "noImplicitReturns": true,
+        "pretty": true,
+        "typeRoots": ["node_modules/@types", "@types"]
+    }
 }

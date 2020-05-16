@@ -1,0 +1,14 @@
+{
+    "extends": "../tsconfig.json",
+    "files": ["js/main.ts"],
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "lib": ["dom", "es2015", "es2016"],
+        "noImplicitAny": true,
+        "target": "es5",
+        "module": "es6",
+        "moduleResolution": "node",
+        "noUnusedLocals": true,
+        "noUnusedParameters": true
+    }
+}

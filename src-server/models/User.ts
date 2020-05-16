@@ -1,12 +1,12 @@
-import bcrypt from "bcrypt";
-import mongoose from "mongoose";
+import { compare, genSalt, hash } from "bcrypt";
+import { Model, Schema, Types, Document, HookNextFunction } from "mongoose";
 import { ChildLogger } from "../util/logger";
 
 const logger = ChildLogger(__filename);
-const SALT_ROUND = 10;
+const SALT_ROUND = 13;
 
-export interface IUserModel extends mongoose.Document {
-    id: mongoose.Schema.Types.ObjectId;
+export type IUser = {
+    _id: Types.ObjectId;
     email: string;
     password: string;
     passwordResetToken: string | undefined;
@@ -17,62 +17,90 @@ export interface IUserModel extends mongoose.Document {
         name: string;
         gender: string;
     };
-    comparePassword: comparePasswordFunction;
-}
-
-type comparePasswordFunction = (this: IUserModel, candidatePassword: string, cb: (err: any, isMatch: any) => {}) => void;
-
-export type AuthToken = {
-    accessToken: string,
-    kind: string
 };
 
-const userSchema = new mongoose.Schema({
-    email: {type: String, unique: true},
-    password: String,
-    passwordResetToken: String,
-    passwordResetExpires: Date,
-    emailVerificationToken: String,
-    emailVerified: Boolean,
-    profile: {
-        name: String,
-        gender: String,
-    }
-}, {timestamps: true});
+export type IUserDocument = Document &
+    IUser & {
+        comparePassword: (
+            this: IUser,
+            candidatePassword: string,
+            cb: (err: Error | undefined, isMatch: boolean) => void
+        ) => void;
+    };
+
+export type IUserModel = Model<IUserDocument>;
+
+export const userSchema = new Schema(
+    {
+        email: { type: Schema.Types.String, unique: true },
+        password: Schema.Types.String,
+        passwordResetToken: Schema.Types.String,
+        passwordResetExpires: Schema.Types.Date,
+        emailVerificationToken: Schema.Types.String,
+        emailVerified: Schema.Types.Boolean,
+        profile: {
+            name: Schema.Types.String,
+            gender: Schema.Types.String
+        }
+    },
+    { timestamps: true }
+);
 
 /**
- * Password hash middleware.
+ * Indexes
  */
-userSchema.pre("save", function save(next) {
-    const user = <IUserModel>this;
-    if (!user.isModified("password")) {
+userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ passwordResetToken: 1 }, { unique: false, background: true });
+userSchema.index({ emailVerificationToken: 1 }, { unique: false, background: true });
+userSchema.index({ createdAt: 1 }, { unique: false, background: true });
+
+/**
+ * Password hash pre save middleware.
+ */
+userSchema.pre("save", function (this: IUserDocument, next: HookNextFunction) {
+    if (this.isModified("email")) {
+        this.email = this.email.toLowerCase();
+    }
+    if (!this.isModified("password")) {
         return next();
     }
 
-    return bcrypt.genSalt(SALT_ROUND, (err, salt) => {
+    return genSalt(SALT_ROUND, (err, salt) => {
         if (err) {
-            logger.error(err);
+            logger.log({
+                level: "error",
+                message: err.toString(),
+                FN: "Password hash pre save genSalt"
+            });
             return next(err);
         }
 
-        return bcrypt.hash(user.password, salt, (err, hash) => {
+        return hash(this.password, salt, (err, hash) => {
             if (err) {
-                logger.error(err);
+                logger.log({
+                    level: "error",
+                    message: err.toString(),
+                    FN: "Password hash pre save hash"
+                });
                 return next(err);
             }
-            user.password = hash;
+            this.password = hash;
             return next();
         });
     });
 });
 
-const comparePassword: comparePasswordFunction = function (candidatePassword, cb) {
-    return bcrypt.compare(candidatePassword, this.password, (err, isMatch: boolean) => {
-        return cb(err, isMatch);
+const comparePassword: IUserDocument["comparePassword"] = function (candidatePassword, cb) {
+    return compare(candidatePassword, this.password, (err, isMatch) => {
+        if (err) {
+            logger.log({
+                level: "error",
+                message: err.toString(),
+                FN: "comparePassword"
+            });
+            return cb(err, false);
+        }
+        return cb(undefined, isMatch);
     });
 };
-
 userSchema.methods.comparePassword = comparePassword;
-
-export const User = mongoose.model<IUserModel>("User", userSchema);
-export default User;

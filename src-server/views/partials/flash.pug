@@ -1,0 +1,18 @@
+if _flashes.errors
+    .alert.alert-danger
+        button.close(type='button', data-dismiss='alert')
+            i.far.fa-times-circle
+        for error in _flashes.errors
+            div= error.msg
+if _flashes.info
+    .alert.alert-info
+        button.close(type='button', data-dismiss='alert')
+            i.far.fa-times-circle
+        for info in _flashes.info
+            div= info.msg
+if _flashes.success
+    .alert.alert-success
+        button.close(type='button', data-dismiss='alert')
+            i.far.fa-times-circle
+        for success in _flashes.success
+            div= success.msg

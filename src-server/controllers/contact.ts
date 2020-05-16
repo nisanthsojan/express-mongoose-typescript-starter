@@ -1,10 +1,9 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import { check, validationResult } from "express-validator";
-import CONSTANTS from "../config/constants.json";
+// import { APP_EMAIL, APP_NAME } from "../config/constants";
 import sgMail from "@sendgrid/mail";
-import { MailData } from "@sendgrid/helpers/classes/mail";
-
 import { SENDGRID_API_KEY } from "../util/secrets";
+import Bluebird from "bluebird";
 
 sgMail.setApiKey(SENDGRID_API_KEY);
 
@@ -12,7 +11,7 @@ sgMail.setApiKey(SENDGRID_API_KEY);
  * GET /contact
  * Contact form page.
  */
-export let getContact = (req: Request, res: Response) => {
+export const getContact = function (req: Request, res: Response): void {
     return res.render("contact", {
         title: "Contact"
     });
@@ -22,42 +21,40 @@ export let getContact = (req: Request, res: Response) => {
  * POST /contact
  * Send a contact form via Nodemailer.
  */
-export let postContact = [
-    check("name")
-        .not().isEmpty().withMessage("Name cannot be blank")
-        .trim()
-        .escape(),
+export const postContact = [
+    check("name").not().isEmpty().withMessage("Name cannot be blank").trim().escape(),
     check("email", "Email is not valid").isEmail().normalizeEmail({
-        all_lowercase: false,
-        gmail_remove_dots: false
+        "all_lowercase": false,
+        "gmail_remove_dots": false
     }),
-    check("message")
-        .not().isEmpty().withMessage("Message cannot be blank")
-        .trim()
-        .escape(),
-    (req: Request, res: Response) => {
-
+    check("message").not().isEmpty().withMessage("Message cannot be blank").trim().escape(),
+    (req: Request, res: Response): Promise<void> => {
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
             req.flash("errors", errors.array());
-            return res.status(400).redirect(req.app.namedRoutes.build("contact"));
+            return Bluebird.resolve().then(() => res.status(400).redirect(req.app.namedRoutes.build("contact")));
         }
 
-        const mailOptions: MailData = {
-            to: CONSTANTS.APP_EMAIL,
-            from: `${req.body.name} <${req.body.email}>`,
-            subject: `Contact Form from ${CONSTANTS.APP_NAME}`,
-            text: req.body.message
-        };
+        req.flash("success", { msg: "Email has been sent successfully!" });
+        return Bluebird.resolve(res.redirect(req.app.namedRoutes.build("contact")));
 
-        return sgMail.send(mailOptions, false).then(result => {
-            req.flash("success", {msg: "Email has been sent successfully!"});
-            return res.redirect(req.app.namedRoutes.build("contact"));
-        }, err => {
-            req.flash("errors", {msg: err.message});
-            return res.status(422).redirect(req.app.namedRoutes.build("contact"));
-        });
-
+        // const mailOptions = {
+        //     to: APP_EMAIL,
+        //     from: `${req.body.name} <${req.body.email}>`,
+        //     subject: `Contact Form from ${APP_NAME}`,
+        //     text: req.body.message
+        // };
+        //
+        // return sgMail.send(mailOptions, false).then(
+        //     () => {
+        //         req.flash("success", { msg: "Email has been sent successfully!" });
+        //         return res.redirect(req.app.namedRoutes.build("contact"));
+        //     },
+        //     (err) => {
+        //         req.flash("errors", { msg: err.message });
+        //         return res.status(422).redirect(req.app.namedRoutes.build("contact"));
+        //     }
+        // );
     }
 ];
