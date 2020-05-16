@@ -73,7 +73,6 @@ For Editors, make sure you have the corresponding [TypeScript plugin](http://www
 The most obvious difference in a TypeScript + Node project is the folder structure.
 In a TypeScript project, it's best to have separate _source_ and _distributable_ files.
 TypeScript (`.ts`) files live in your `src-server` and `src-public` folder and after compilation are output as JavaScript (`.js`) in the `dist` folder.
-The `test` and `views` folders remain top level as expected.
 
 The full folder structure of this app is explained below:
 
