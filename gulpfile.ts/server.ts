@@ -4,6 +4,7 @@ import { join as pathJoin } from "path";
 import { default as gulpFooter } from "gulp-footer";
 import { DIST, SOURCE, BASE } from "./constants";
 import { spawn } from "child_process";
+import { ICallbackFunction } from "./_types";
 
 const IS_PROD = process.env.NODE_ENV === "production";
 
@@ -31,20 +32,20 @@ export async function templates(): Promise<void> {
     }
 }
 
-export function scripts(cb: Function): void {
+export function scripts(cb: ICallbackFunction): void {
     const tscPath = pathJoin(BASE, "/node_modules/.bin/tsc");
 
     const ls = spawn(tscPath, ["-p", pathJoin(SOURCE.SERVER, "tsconfig.json")], {
         cwd: BASE
     });
-    ls.stdout.on("data", (data) => {
-        console.log(`stdout: ${data}`);
+    ls.stdout.on("data", function (data: string) {
+        console.log(`stdout: ${data.toString()}`);
     });
-    ls.stderr.on("data", (data) => {
-        console.error(`stderr: ${data}`);
+    ls.stderr.on("data", function (data: string) {
+        console.error(`stderr: ${data.toString()}`);
     });
-    ls.on("close", (code) => {
-        console.log(`child process closed with code ${code}`);
+    ls.on("close", function (code: string) {
+        console.log(`child process closed with code ${code.toString()}`);
         cb();
     });
 

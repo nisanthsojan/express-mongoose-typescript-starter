@@ -1,13 +1,14 @@
 import { join as pathJoin } from "path";
 import { BASE } from "./constants";
 import { spawn } from "child_process";
+import { ICallbackFunction } from "./_types";
 
 const mPath = pathJoin(BASE, "/node_modules/.bin/prettier");
 const cPath = pathJoin(BASE, "prettier.config.js");
 const iPath = pathJoin(BASE, ".prettierignore");
 const sPath = pathJoin(BASE, "**/*.*");
 
-export function check(cb: Function): void {
+export function check(cb: ICallbackFunction): void {
     const ls = spawn(mPath, [sPath, "--check", "--config", cPath, "--ignore-path", iPath], {
         cwd: BASE
     });
@@ -24,12 +25,12 @@ export function check(cb: Function): void {
     });
 }
 
-export function fix(cb: Function): void {
+export function fix(cb: ICallbackFunction): void {
     const ls = spawn(mPath, [sPath, "--write", "--config", cPath, "--ignore-path", iPath], {
         cwd: BASE
     });
     ls.stdout.on("data", (data) => {
-        console.log(`stdout: ${data}`);
+        console.log(`stdout: ${data.toString() as string}`);
     });
     /*ls.stderr.on("data", (data) => {
         // console.error(`stderr: ${data}`);

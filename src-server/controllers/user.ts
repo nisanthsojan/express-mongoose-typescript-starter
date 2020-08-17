@@ -1,7 +1,7 @@
 import { randomBytes } from "crypto";
 import type { Request, Response, NextFunction } from "express";
 import type { IVerifyOptions } from "passport-local";
-import { default as passport } from "../config/passport";
+import { passport } from "../config/passport";
 import { check, validationResult } from "express-validator";
 import sanitize from "mongo-sanitize";
 import { ChildLogger } from "../util/logger";
@@ -18,6 +18,7 @@ import type { IUserDocument } from "../models/User";
 import { $User } from "../models";
 import Bluebird from "bluebird";
 import moment from "moment";
+import type { Types } from "mongoose";
 
 const logger = ChildLogger(__filename);
 sgMail.setApiKey(SENDGRID_API_KEY);
@@ -52,7 +53,7 @@ export const postLogin = [
             return res.status(400).redirect(req.app.namedRoutes.build("admin.login"));
         }
 
-        return passport.authenticate("local", (err: Error, user: IUserDocument, info: IVerifyOptions) => {
+        return passport.authenticate("local", (err: Error, user: IUserDocument, info: IVerifyOptions): void => {
             if (err) {
                 logger.error(err);
                 return next(err);
@@ -124,21 +125,22 @@ export const postSignup = [
 
         if (!errors.isEmpty()) {
             req.flash("errors", errors.array());
-            return Bluebird.resolve(res.status(400).redirect(req.app.namedRoutes.build("admin.register")));
+            return Promise.resolve(res.status(400).redirect(req.app.namedRoutes.build("admin.register")));
         }
 
-        return Bluebird.resolve()
-            .then(() => $User.findOne({ email: sanitize(req.body.email) }).exec())
+        return $User
+            .findOne({ email: sanitize<string>(req.body.email) })
+            .exec()
             .then((existingUser) => {
                 if (existingUser) {
-                    return Bluebird.reject(new Error("User exists"));
+                    return Promise.reject(new Error("User exists"));
                 }
 
                 return new $User({
-                    email: sanitize(req.body.email),
-                    password: sanitize(req.body.password),
+                    email: sanitize<string>(req.body.email),
+                    password: sanitize<string>(req.body.password),
                     profile: {
-                        name: sanitize(req.body.fullName)
+                        name: sanitize<string>(req.body.fullName)
                     }
                 }).save();
             })
@@ -192,7 +194,7 @@ export const postForgot = [
 
         return (
             Bluebird.resolve()
-                .then(() => $User.findOne({ email: sanitize(req.body.email) }).exec())
+                .then(() => $User.findOne({ email: sanitize<string>(req.body.email) }).exec())
                 .then((user) => {
                     if (!user) {
                         return Bluebird.reject(new Error("Account with that email address does not exist."));
@@ -246,7 +248,7 @@ export const getReset = function (req: Request, res: Response): Promise<void> {
     }
 
     return $User
-        .findOne({ passwordResetToken: sanitize(req.params.token) })
+        .findOne({ passwordResetToken: sanitize<string>(req.params.token) })
         .where("passwordResetExpires")
         .gt(Date.now())
         .exec()
@@ -295,7 +297,7 @@ export const postReset = [
         return Bluebird.resolve()
             .then(() =>
                 $User
-                    .findOne({ passwordResetToken: sanitize(req.params.token) })
+                    .findOne({ passwordResetToken: sanitize<string>(req.params.token) })
                     .where("passwordResetExpires")
                     .gt(Date.now())
                     .exec()
@@ -304,7 +306,7 @@ export const postReset = [
                 if (!user) {
                     return Bluebird.reject(new Error("User not found"));
                 }
-                user.password = sanitize(req.body.password);
+                user.password = sanitize<string>(req.body.password);
                 user.passwordResetToken = undefined;
                 user.passwordResetExpires = undefined;
                 return user.save();
@@ -371,7 +373,7 @@ export const postUpdateProfile = [
                 if (!user) {
                     return Bluebird.reject(new Error("User not found"));
                 }
-                user.profile.name = sanitize(req.body.fullName) || "";
+                user.profile.name = sanitize<string>(req.body.fullName) || "";
 
                 return user.save();
             })
@@ -425,7 +427,7 @@ export const postUpdatePassword = [
                 if (!user) {
                     return Bluebird.reject(new Error("User not found"));
                 }
-                user.password = sanitize(req.body.password);
+                user.password = sanitize<string>(req.body.password);
 
                 return user.save();
             })
@@ -453,7 +455,7 @@ export const postDeleteAccount = function (req: Request, res: Response): Promise
         return Bluebird.resolve(res.redirect(req.app.namedRoutes.build("index")));
     }
     return $User
-        .remove({ _id: (req.user as IUserDocument).id })
+        .remove({ _id: (req.user as IUserDocument).id as Types.ObjectId })
         .exec()
         .then(() => {
             req.logout();

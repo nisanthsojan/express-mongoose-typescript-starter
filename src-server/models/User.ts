@@ -21,6 +21,7 @@ export type IUser = {
 
 export type IUserDocument = Document &
     IUser & {
+        id: Types.ObjectId;
         comparePassword: (
             this: IUser,
             candidatePassword: string,

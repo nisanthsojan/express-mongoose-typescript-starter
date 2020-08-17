@@ -26,6 +26,19 @@ module.exports = {
         ]
     },
     rules: {
-        "@typescript-eslint/interface-name-prefix": ["error", { prefixWithI: "always" }]
+        "@typescript-eslint/no-unsafe-call": 0,
+        "@typescript-eslint/no-unsafe-return": 0,
+        "@typescript-eslint/no-unsafe-member-access": 0,
+        "@typescript-eslint/naming-convention": [
+            "error",
+            {
+                "selector": "interface",
+                "format": ["PascalCase"],
+                "custom": {
+                    "regex": "^I[A-Z]",
+                    "match": false
+                }
+            }
+        ]
     }
 };

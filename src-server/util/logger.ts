@@ -34,13 +34,13 @@ export const logger = createLogger({
             format: "DD/MM/YYYY HH:mm:ss.SSS"
         }),
         format.colorize(),
-        format.printf((info) => {
-            let out = `[${process.pid}][${info.timestamp}]`;
+        format.printf(function (info) {
+            let out = `[${process.pid}][${info.timestamp as string}]`;
             if (info.FILE) {
-                out += `[${info.FILE}]`;
+                out += `[${info.FILE as string}]`;
             }
             if (info.FN) {
-                out += `[${info.FN}]`;
+                out += `[${info.FN as string}]`;
             }
 
             const restInfo = Object.assign({}, info, {

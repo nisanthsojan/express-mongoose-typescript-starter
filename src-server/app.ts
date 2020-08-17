@@ -7,7 +7,7 @@ import helmet from "helmet";
 import connectMongo from "connect-mongo";
 import flash from "connect-flash";
 import path from "path";
-import { default as passport } from "./config/passport";
+import { passport } from "./config/passport";
 import csurf from "csurf";
 import { SESSION_NAME, SESSION_SECRET, IS_PROD } from "./util/secrets";
 import expressEnforcesSsl from "express-enforces-ssl";
@@ -83,11 +83,12 @@ export class ServerApplication {
         if (IS_PROD) {
             this._app.set("views", path.join(__dirname, "views"));
             this._app.set("view engine", "js");
+            // eslint-disable-next-line @typescript-eslint/no-var-requires,@typescript-eslint/no-unsafe-assignment
             const runtime = require("pug").runtime;
             this._logger.debug(path.join(__dirname, "views"));
             this._app.engine("js", function (filePath, options, callback) {
                 // define the template engine
-                // eslint-disable-next-line @typescript-eslint/no-var-requires
+                // eslint-disable-next-line @typescript-eslint/no-var-requires,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment
                 const data = require(filePath)(options, runtime);
                 callback(undefined, data);
             });
